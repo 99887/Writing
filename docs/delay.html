@@ -1,138 +1,108 @@
 <!DOCTYPE html>
-<html id="lbDelayingPage" lang="en">
-
+<html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=0.75, shrink-to-fit=no">
-	<title>Site Blocked</title>
+  <meta charset="utf-8">
+  <title>Page blocked</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<link rel="shortcut icon" href="/icons/leechblock32.ico" type="image/x-icon">
-	<link rel="icon" href="/icons/leechblock32.ico" type="image/x-icon">
-	<link rel="stylesheet" href="/fonts.css" type="text/css">
-	<link rel="stylesheet" href="/style.css" type="text/css">
-	<link id="themeLink" rel="stylesheet">
-	<style id="customStyle"></style>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
 
-	<style>
-		/* Pomofocus iframe */
-		#pomoFrame {
-			position: fixed;
-			inset: 0;
-			width: 100%;
-			height: 100%;
-			border: none;
-			z-index: 0;
-		}
+    /* Toast container */
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: -380px;
+      width: 320px;
+      background: rgba(18, 18, 18, 0.95);
+      color: #fff;
+      padding: 16px 18px;
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      animation: slideIn 0.4s ease-out forwards;
+      z-index: 9999;
+    }
 
-		/* Ensure LeechBlock UI stays visible */
-		body > div {
-			position: relative;
-			z-index: 1;
-		}
+    @keyframes slideIn {
+      to { right: 20px; }
+    }
 
-		/* Floating timer */
-		#floatingTimer {
-			position: fixed;
-			top: 12px;
-			right: 12px;
-			z-index: 9999;
-			background: rgba(0, 0, 0, 0.85);
-			color: #fff;
-			padding: 10px 14px;
-			border-radius: 12px;
-			font-size: 26px;
-			font-weight: 600;
-			box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-			backdrop-filter: blur(6px);
-			pointer-events: none;
-		}
-	</style>
+    #title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    #site {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    #countdown {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    a {
+      color: #7db4ff;
+      text-decoration: none;
+    }
+  </style>
 </head>
 
 <body>
 
-	<!-- Pomofocus background -->
-	<iframe
-		id="pomoFrame"
-		src="https://pomofocus.io"
-		allow="fullscreen"
-	></iframe>
+  <div id="toast">
+    <div id="title">Page blocked</div>
+    <div id="site">
+      <a id="siteLink" target="_self"></a>
+    </div>
+    <div id="countdown">—:—</div>
+  </div>
 
-	<!-- Floating countdown -->
-	<div id="floatingTimer">00:00</div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
 
-	<!-- logo -->
-	<div id="lbLogoDiv">
-		<a href="https://www.proginosko.com/leechblock/">
-			<img id="lbLogoImg" src="/images/leechblock_logo.svg" class="logo" alt="LeechBlock logo" title="LeechBlock">
-		</a>
-	</div>
+    const site = params.get("site");
+    let remaining = parseInt(params.get("seconds"), 10);
 
-	<!-- warning message -->
-	<div id="lbWarningMsgDiv">
-		<h1>The page you're trying to access has been temporarily blocked by
-			<a href="https://www.proginosko.com/leechblock/">LeechBlock</a>.
-		</h1>
-	</div>
+    const siteLink = document.getElementById("siteLink");
+    const countdown = document.getElementById("countdown");
 
-	<!-- blocked site info -->
-	<div id="lbBlockedDiv">
-		<a id="lbBlockedURLLink" target="_self"><span id="lbBlockedURL"></span></a>
-		(<span id="lbBlockedSet">Block Set</span>)
-		<p id="lbKeywordMatched" style="display: none;">
-			Keyword matched: <span id="lbKeywordMatch" class="keyword"></span>
-		</p>
-		<p id="lbCountdownText">
-			The page will be unblocked in
-			<span id="lbDelaySeconds" class="delay">0</span>
-			second(s).
-		</p>
-	</div>
-
-	<!-- custom message (optional) -->
-	<div id="lbCustomMsgDiv" style="display: none;">
-		<p>A message from yourself:</p>
-		<blockquote id="lbCustomMsg"></blockquote>
-	</div>
-
-	<!-- support info -->
-	<div id="lbSupportDiv" class="support">
-		LeechBlock will always be free to use, but if it has improved your life,<br>
-		please consider supporting its continued development by<br>
-		<a href="https://www.paypal.me/JamesNAnderson">making a contribution</a> or
-		<a href="https://addons.mozilla.org/firefox/addon/leechblock-ng/">writing a review</a>.
-	</div>
-
-	<script src="/blocked.js"></script>
-
-<script>
-  const display = document.getElementById("floatingTimer");
-
-  function format(sec) {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  let remaining = parseInt(params.get("seconds"), 10);
-
-  if (isNaN(remaining)) {
-    display.textContent = "—:—";
-    throw new Error("No seconds parameter provided");
-  }
-
-  display.textContent = format(remaining);
-
-  setInterval(() => {
-    if (remaining > 0) {
-      remaining--;
-      display.textContent = format(remaining);
+    if (site) {
+      siteLink.href = site;
+      siteLink.textContent = site;
+    } else {
+      siteLink.textContent = "Unknown site";
     }
-  }, 1000);
-</script>
 
+    function format(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${s.toString().padStart(2, "0")}`;
+    }
+
+    function tick() {
+      if (remaining >= 0) {
+        countdown.textContent = format(remaining);
+        remaining--;
+      }
+    }
+
+    if (!isNaN(remaining)) {
+      tick();
+      setInterval(tick, 1000);
+    } else {
+      countdown.textContent = "—:—";
+    }
+  </script>
 
 </body>
 </html>
