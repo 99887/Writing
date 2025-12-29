@@ -54,11 +54,26 @@
       color: #7db4ff;
       text-decoration: none;
     }
+
+    #pomoFrame {
+			position: fixed;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			border: none;
+			z-index: 0;
+		}
   </style>
 </head>
 
 <body>
 
+	<iframe
+		id="pomoFrame"
+		src="https://pomofocus.io"
+		allow="fullscreen"
+	></iframe>
+  
   <div id="toast">
     <div id="title">Page blocked</div>
     <div id="site">
