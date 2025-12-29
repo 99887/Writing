@@ -106,26 +106,33 @@
 
 	<script src="/blocked.js"></script>
 
-	<script>
-		const display = document.getElementById("floatingTimer");
-		const lbSeconds = document.getElementById("lbDelaySeconds");
+<script>
+  const display = document.getElementById("floatingTimer");
 
-		function format(sec) {
-			const m = Math.floor(sec / 60);
-			const s = sec % 60;
-			return `${m}:${s.toString().padStart(2, "0")}`;
-		}
+  function format(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
 
-		function updateTimer() {
-			const seconds = parseInt(lbSeconds?.textContent, 10);
-			if (!isNaN(seconds)) {
-				display.textContent = format(seconds);
-			}
-		}
+  const params = new URLSearchParams(window.location.search);
+  let remaining = parseInt(params.get("seconds"), 10);
 
-		setInterval(updateTimer, 500);
-		updateTimer();
-	</script>
+  if (isNaN(remaining)) {
+    display.textContent = "—:—";
+    throw new Error("No seconds parameter provided");
+  }
+
+  display.textContent = format(remaining);
+
+  setInterval(() => {
+    if (remaining > 0) {
+      remaining--;
+      display.textContent = format(remaining);
+    }
+  }, 1000);
+</script>
+
 
 </body>
 </html>
